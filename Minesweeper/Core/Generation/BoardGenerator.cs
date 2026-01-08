@@ -33,7 +33,7 @@ public class BoardGenerator : IBoardGenerator
         int i = 0;
         foreach (var (x, y) in mines)
         {
-            foreach (var (x1, y1) in AroundCells)
+            foreach (var (x1, y1) in Cell.AroundCells)
             {
                 if (IsValidPosition(x + x1, y + y1))
                 {
@@ -54,10 +54,6 @@ public class BoardGenerator : IBoardGenerator
             return x >= 0 && x < width && y >= 0 && y < height;
         }
     }
-    private static readonly (int, int)[] AroundCells = [
-        (-1,-1), (0, -1),(1, -1),
-        (-1, 0),         (1, 0),
-        (-1, 1), (0, 1), (1, 1)
-    ];
+    
     
 }

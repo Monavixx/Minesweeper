@@ -35,7 +35,11 @@ public class Game
     public void Reveal(int x, int y)
     {
         Cell cell = GameState.Board[x, y];
-        if (cell.Reveal())
+        if (cell.IsEmpty)
+        {
+            FloodReveal(x, y);
+        }
+        else if (cell.Reveal())
         {
             if (cell.IsMine)
             {
@@ -43,22 +47,62 @@ public class Game
                 OnGameOver?.Invoke();
                 return;
             }
-            if (cell.IsEmpty)
-            {
-                FloodReveal(x, y);
-            }
-
             if (GameState.Board.AllSafeCellsRevealed())
             {
                 GameState.State = GameState.CurrentState.Victory;
                 OnVictory?.Invoke();
-            }            
+            }    
+            OnCellUpdated?.Invoke(x, y);
         }
-        OnCellUpdated?.Invoke(x, y);
+    }
+
+    private bool RevealJustOne(int x, int y)
+    {
+        Cell cell = GameState.Board[x, y];
+        if (cell.Reveal())
+        {
+            if (cell.IsMine)
+            {
+                GameState.State = GameState.CurrentState.GameOver;
+                OnGameOver?.Invoke();
+            }
+            else if (GameState.Board.AllSafeCellsRevealed())
+            {
+                GameState.State = GameState.CurrentState.Victory;
+                OnVictory?.Invoke();
+            }
+            OnCellUpdated?.Invoke(x, y);
+            return true;
+        }
+        return false;
     }
 
     private void FloodReveal(int x, int y)
     {
+        Queue<(int, int)> revealQueue = new ();
+        HashSet<(int, int)> visited = new();
+        revealQueue.Enqueue((x, y));
+        visited.Add((x, y));
         
+        while (revealQueue.Count > 0)
+        {
+            var (cx, cy) = revealQueue.Dequeue();
+            Cell cell = GameState.Board[cx, cy];
+            
+            if (RevealJustOne(cx, cy) && cell.IsEmpty)
+            {
+                foreach (var aroundCell in Cell.AroundCells)
+                {
+                    int acx = aroundCell.Item1+cx;
+                    int acy = aroundCell.Item2+cy;
+                    if (GameState.Board.IsValidPosition(acx, acy)
+                        && !visited.Contains((acx, acy)))
+                    {
+                        revealQueue.Enqueue((acx, acy));
+                        visited.Add((acx, acy));
+                    }
+                }
+            }
+        }
     }
 }

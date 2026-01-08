@@ -25,4 +25,10 @@ public sealed class Cell
         IsRevealed = true;
         return true;
     }
+    
+    public static readonly (int, int)[] AroundCells = [
+        (-1,-1), (0, -1),(1, -1),
+        (-1, 0),         (1, 0),
+        (-1, 1), (0, 1), (1, 1)
+    ];
 }

@@ -21,7 +21,7 @@ public sealed class ConsoleApplication
                 {
                     Width = 20,
                     Height = 10,
-                    MineChance = 15
+                    MineChance = 10
                 }
             },
             game: new Game(new BoardGenerator())
@@ -37,7 +37,6 @@ public sealed class ConsoleApplication
     }
     public void Run()
     {
-        //_consoleAppState.Game.StartNewGame(_consoleAppState.AppState.BoardConfig);
         while (_consoleAppState.IsRunning)
         {
             _renderManager.Render();
