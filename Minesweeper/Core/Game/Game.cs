@@ -2,6 +2,7 @@ using Minesweeper.Core.Generation;
 
 namespace Minesweeper.Core.Game;
 using Board;
+using Statistics;
 
 public class Game
 {
@@ -13,7 +14,6 @@ public class Game
     public event Action? OnGameStarted;
     public event Action? OnVictory;
     public event Action<int, int>? OnCellUpdated;
-    
 
     public Game(IBoardGenerator boardGenerator)
     {

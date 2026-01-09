@@ -9,6 +9,7 @@ public class ConsolePartialRenderer : IConsoleRenderer
     private bool _gameOverRequired = false;
     private bool _victoryRequired = false;
     private (int,int) _oldCursorPosition = (0,0);
+    private bool _statisticsRequired = false;
     private readonly List<(int, int)> _updatedCells = new();
     private ConsoleAppState _consoleAppState;
     public ConsolePartialRenderer(ConsoleAppState consoleAppState)
@@ -19,6 +20,7 @@ public class ConsolePartialRenderer : IConsoleRenderer
         _consoleAppState.Game.OnVictory += HandleVictory;
         _consoleAppState.Game.OnCellUpdated += HandleCellUpdated;
         _consoleAppState.OnCursorMoved += HandleCursorMoved;
+        _consoleAppState.Statistics.Changed += () => _statisticsRequired = true;
     }
     private void ClearCache()
     {
@@ -26,6 +28,7 @@ public class ConsolePartialRenderer : IConsoleRenderer
         _updatedCells.Clear();
         _victoryRequired = false;
         _gameOverRequired = false;
+        _statisticsRequired = false;
     }
     private void HandleCellUpdated(int x, int y) => _updatedCells.Add((x, y));
     private void HandleGameStarted() => _fullRenderRequired = true;
@@ -57,6 +60,8 @@ public class ConsolePartialRenderer : IConsoleRenderer
             }
             if(_victoryRequired)
                 RenderVictory();
+            if(_statisticsRequired)
+                RenderStatistics();
         }
         ClearConsoleCursorPosition();
         ClearCache();
@@ -171,7 +176,8 @@ public class ConsolePartialRenderer : IConsoleRenderer
         {
             RenderGameOver();
         }
-        
+        RenderStatistics();
+        Console.ResetColor();
         ClearConsoleCursorPosition();
     }
 
@@ -185,10 +191,11 @@ public class ConsolePartialRenderer : IConsoleRenderer
         int width = victoryMessage.Length + 8;
         for(int i = 1; i < 4; ++i)
         {
-            Console.SetCursorPosition(1, i);
+            Console.SetCursorPosition(_consoleAppState.Game.GameState.Board.Width + 3, i);
             Console.Write(new string(' ', width));
         }
-        Console.SetCursorPosition(1+(width-victoryMessage.Length)/2, 2);
+        Console.SetCursorPosition(_consoleAppState.Game.GameState.Board.Width + 3
+                                                                              +(width-victoryMessage.Length)/2, 2);
         Console.Write(victoryMessage);
         
         Console.ForegroundColor = oldFore;
@@ -196,21 +203,43 @@ public class ConsolePartialRenderer : IConsoleRenderer
     }
     private void RenderGameOver(string gameOverMessage = "Game over :(")
     {
-        var oldBack = Console.BackgroundColor;
-        var oldFore = Console.ForegroundColor;
         Console.ForegroundColor = ConsoleColor.Red;
         Console.BackgroundColor = ConsoleColor.DarkGray;
         
         int width = gameOverMessage.Length + 8;
         for(int i = 1; i < 4; ++i)
         {
-            Console.SetCursorPosition(1, i);
+            Console.SetCursorPosition(_consoleAppState.Game.GameState.Board.Width + 3, i);
             Console.Write(new string(' ', width));
         }
-        Console.SetCursorPosition(1+(width-gameOverMessage.Length)/2, 2);
+
+        Console.SetCursorPosition(
+            _consoleAppState.Game.GameState.Board.Width + 3
+                                                        + (width - gameOverMessage.Length) / 2, 2);
         Console.Write(gameOverMessage);
-        
-        Console.ForegroundColor = oldFore;
-        Console.BackgroundColor = oldBack;
+        Console.ResetColor();
     }
+
+    private void RenderStatistics()
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.BackgroundColor = ConsoleColor.DarkGray;
+
+        List<string> stats = _consoleAppState.Statistics.GetStatistics().ToList();
+        int width = stats.Max(s => s.Length) + 4;
+        for (int i = 0; i < stats.Count; ++i)
+        {
+            Console.SetCursorPosition(_consoleAppState.Game.GameState.Board.Width + 3,
+                                        i+5);
+            Console.Write(new string(' ', width));
+        }
+        int yOff = 5;
+        foreach (string stat in stats)
+        {
+            Console.SetCursorPosition(_consoleAppState.Game.GameState.Board.Width + 3 + 2, yOff++);
+            Console.Write(stat);
+        }
+        Console.ResetColor();
+    }
+    
 }

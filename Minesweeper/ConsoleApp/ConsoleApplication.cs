@@ -1,8 +1,10 @@
 using Minesweeper.ConsoleApp.Input;
+using Minesweeper.ConsoleApp.Persistence;
 using Minesweeper.ConsoleApp.Render;
 using Minesweeper.Core;
 using Minesweeper.Core.Game;
 using Minesweeper.Core.Generation;
+using Minesweeper.Core.Statistics;
 
 namespace Minesweeper.ConsoleApp;
 
@@ -11,9 +13,14 @@ public sealed class ConsoleApplication
     private readonly ConsoleAppState _consoleAppState;
     private readonly RenderManager _renderManager;
     private readonly InputManager _inputManager;
+    private readonly StatisticsManager _statsManager;
+    private readonly AppPaths _appPaths;
 
     public ConsoleApplication()
     {
+        _appPaths = new AppPaths(Directory.GetCurrentDirectory());
+        _statsManager = new StatisticsManager(new JsonStatisticsStore(_appPaths));
+        
         _consoleAppState = new ConsoleAppState(
             appState: new AppState()
             {
@@ -24,8 +31,11 @@ public sealed class ConsoleApplication
                     MineChance = 10
                 }
             },
-            game: new Game(new BoardGenerator())
+            game: new Game(new BoardGenerator()),
+            statistics: _statsManager.Statistics
         );
+        _consoleAppState.BindStatisticsToEvents();
+        
         _renderManager = new RenderManager(new ConsolePartialRenderer(_consoleAppState));
         _renderManager.RenderContext = new MainMenuRenderContext();
         _inputManager = new InputManager(_consoleAppState);
