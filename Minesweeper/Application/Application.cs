@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Minesweeper.Application.Input;
 using Minesweeper.Application.Persistence;
 using Minesweeper.Application.Screens;
@@ -54,26 +55,48 @@ public class Application
     
     public void Run()
     {
-        Console.CursorVisible = false;
-        while (_isRunning)
+        try
         {
-            _viewport.Update();
-            _navigator.CurrentScreen.Render();
-            var key = Console.ReadKey(true);
-            var inputHandleResult = _navigator.CurrentScreen.HandleInput(key)
-                      ?? _globalInputManager.HandleInput(key);
-            if (inputHandleResult != null)
-                switch (inputHandleResult.Action)
+            Console.CursorVisible = false;
+            var stopWatch = Stopwatch.StartNew();
+            var lastTick = stopWatch.Elapsed;
+            
+            while (_isRunning)
+            {
+                var now = stopWatch.Elapsed;
+                var delta = now - lastTick;
+                lastTick = now;
+                
+                _viewport.Update();
+
+                _navigator.CurrentScreen.Update(delta);
+                _navigator.CurrentScreen.Render();
+                
+                if (Console.KeyAvailable)
                 {
-                    case InputActionType.Exit:
-                        _isRunning = false;
-                        break;
-                    case InputActionType.NavigateTo:
-                        _navigator.NavigateTo(inputHandleResult.TargetScreenType!);
-                        break;
+                    var key = Console.ReadKey(true);
+                    var inputHandleResult = _navigator.CurrentScreen.HandleInput(key)
+                                            ?? _globalInputManager.HandleInput(key);
+                    if (inputHandleResult != null)
+                        switch (inputHandleResult.Action)
+                        {
+                            case InputActionType.Exit:
+                                _isRunning = false;
+                                break;
+                            case InputActionType.NavigateTo:
+                                _navigator.NavigateTo(inputHandleResult.TargetScreenType!);
+                                break;
+                        }
                 }
+            }
+
+            // Final render
+            _navigator.CurrentScreen.Render();
         }
-        // Final render
-        _navigator.CurrentScreen.Render();
+        finally
+        {
+            Console.CursorVisible = true;
+            Console.ResetColor();
+        }
     }
 }

@@ -1,4 +1,5 @@
 using Minesweeper.Core.Generation;
+using Minesweeper.Core.Time;
 
 namespace Minesweeper.Core.Game;
 using Board;
@@ -8,7 +9,8 @@ public class Game
 {
     private IBoardGenerator BoardGenerator { get; set; }
     private BoardConfig BoardConfig { get; set; }
-
+    
+    public GameTimer Timer { get; init; }
     public GameState GameState
     {
         get;
@@ -29,6 +31,20 @@ public class Game
     {
         BoardGenerator = boardGenerator;
         BoardConfig = boardConfig;
+        Timer = new GameTimer();
+
+        OnGameStarted += () =>
+        {
+            Timer.Reset();
+            Timer.Start();
+        };
+        OnGameOver += Timer.Stop;
+        OnVictory += Timer.Stop;
+    }
+
+    public void Update(TimeSpan deltaTime)
+    {
+        Timer.Update(deltaTime);
     }
 
     public void StartNewGame()

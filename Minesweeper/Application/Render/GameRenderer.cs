@@ -14,6 +14,8 @@ public class GameRenderer : IDisposable
     private readonly CursorState _cursor;
     private readonly StatisticsRenderer _statisticsRenderer;
     private bool _stateRenderRequired = true;
+    private int _oldSeconds = 0;
+    private bool _timerRequired = true;
 
     private const int StateMinWidth = 15;
     private void ClearCache()
@@ -21,6 +23,7 @@ public class GameRenderer : IDisposable
         _fullRenderRequired = false;
         _updatedCells.Clear();
         _stateRenderRequired = false;
+        _timerRequired = false;
     }
 
     public GameRenderer(Game game, CursorState cursor, Statistics statistics)
@@ -56,8 +59,8 @@ public class GameRenderer : IDisposable
         if (_fullRenderRequired)
         {
             FullRender();
-            _statisticsRenderer.FullRender(board.Width + 3, 5);
-            RenderState(board.Width + 3, 1);
+            _statisticsRenderer.FullRender(board.Width + 3, 7);
+            RenderState(board.Width + 3, 3);
         }
         else
         {
@@ -65,12 +68,11 @@ public class GameRenderer : IDisposable
             {
                 RenderCell(updatedCell.Item1, updatedCell.Item2);
             }
-            _statisticsRenderer.PartialRender(board.Width + 3, 5);
+            _statisticsRenderer.PartialRender(board.Width + 3, 7);
             if(_stateRenderRequired)
-                RenderState(board.Width + 3, 1);
+                RenderState(board.Width + 3, 3);
         }
-        
-        
+        RenderTimer(board.Width + 3, 1);
         ClearCache();
     }
 
@@ -174,5 +176,22 @@ public class GameRenderer : IDisposable
         Console.SetCursorPosition(x+(width-message.Length)/2, y+1);
         Console.Write(message);
         Console.ResetColor();
+    }
+
+    private void RenderTimer(int x, int y)
+    {
+        var seconds = _game.Timer.Elapsed.Seconds;
+        if (seconds != _oldSeconds || _timerRequired)
+        {
+            var timerString = 
+                $"{_game.Timer.Elapsed.TotalHours:00}:{_game.Timer.Elapsed.Minutes:00}:{seconds:00}";
+            Console.SetCursorPosition(x, y);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(timerString);
+            Console.ResetColor();
+        }
+
+        _oldSeconds = seconds;
     }
 }

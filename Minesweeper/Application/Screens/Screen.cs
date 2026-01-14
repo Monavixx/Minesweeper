@@ -27,6 +27,7 @@ public abstract class Screen : IScreen, IScreenContext
     }
 
     public required IViewport Viewport { get; init; }
+    public virtual void Update(TimeSpan deltaTime) { }
 
     public virtual void Dispose()
     {
