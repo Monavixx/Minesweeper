@@ -1,4 +1,5 @@
-﻿using Minesweeper.ConsoleApp;
+﻿
+using Minesweeper.Application;
 
-ConsoleApplication app = new ();
+Application app = new ();
 app.Run();

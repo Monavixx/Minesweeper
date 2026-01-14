@@ -6,24 +6,35 @@ using Statistics;
 
 public class Game
 {
-    public IBoardGenerator BoardGenerator { get; set; }
+    private IBoardGenerator BoardGenerator { get; set; }
+    private BoardConfig BoardConfig { get; set; }
 
-    public GameState GameState { get; private set; }
-
-    public event Action? OnGameOver;
-    public event Action? OnGameStarted;
-    public event Action? OnVictory;
-    public event Action<int, int>? OnCellUpdated;
-
-    public Game(IBoardGenerator boardGenerator)
+    public GameState GameState
     {
-        BoardGenerator = boardGenerator;
+        get;
+        set
+        {
+            field = value;
+            OnGameStarted?.Invoke();
+        }
     }
 
-    public void StartNewGame(BoardConfig boardConfig)
+    public event Action? OnGameOver;
+    public event Action? OnNewGameStarted;
+    public event Action? OnVictory;
+    public event Action<int, int>? OnCellUpdated;
+    public event Action? OnGameStarted;
+
+    public Game(IBoardGenerator boardGenerator, BoardConfig boardConfig)
     {
-        GameState = new GameState(BoardGenerator.Generate(boardConfig));
-        OnGameStarted?.Invoke();
+        BoardGenerator = boardGenerator;
+        BoardConfig = boardConfig;
+    }
+
+    public void StartNewGame()
+    {
+        GameState = new GameState(BoardGenerator.Generate(BoardConfig));
+        OnNewGameStarted?.Invoke();
     }
 
     public void ToggleFlagged(int x, int y)

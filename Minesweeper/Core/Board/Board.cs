@@ -1,20 +1,26 @@
+using System.Text.Json.Serialization;
+
 namespace Minesweeper.Core.Board;
 
 public class Board
 {
-    public required Cell[,] Cells { get; init; }
-    public int Width => Cells.GetLength(0);
-    public int Height => Cells.GetLength(1);
+    [JsonPropertyName("Cells")]
+    public required Cell[][] Cells { get; init; }
+    public int Width => Cells.Length;
+    public int Height => Cells[0].Length;
     
-    public Cell this[int x, int y] => Cells[x, y];
+    public Cell this[int x, int y] => Cells[x][y];
     
     public required Cell[] MineCells { get; init; }
 
     public bool AllSafeCellsRevealed()
     {
-        foreach (var cell in Cells)
+        foreach (var columns in Cells)
         {
-            if (cell is { IsMine: false, IsRevealed: false }) return false;
+            foreach (var cell in columns)
+            {
+                if (cell is { IsMine: false, IsRevealed: false }) return false;
+            }
         }
 
         return true;

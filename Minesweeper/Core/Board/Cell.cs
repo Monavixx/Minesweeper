@@ -1,10 +1,15 @@
+using System.Text.Json.Serialization;
+
 namespace Minesweeper.Core.Board;
 
 public sealed class Cell
 {
+    [JsonInclude]
     public bool IsFlagged { get; private set; }
     public bool IsMine { get; init; }
+    [JsonInclude]
     public bool IsRevealed { get; private set; }
+    [JsonInclude]
     public int MinesAround { get; internal set; }
     public bool IsEmpty => MinesAround == 0;
 

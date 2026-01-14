@@ -14,14 +14,15 @@ public class BoardGenerator : IBoardGenerator
         int height = boardConfig.Height;
         int mineChance = boardConfig.MineChance;
         
-        Cell[,] cells = new Cell[width, height];
+        Cell[][] cells = new Cell[width][];
         List<(int, int)> mines = new();
         for (int x = 0; x < width; ++x)
         {
+            cells[x] =  new Cell[height];
             for (int y = 0; y < height; ++y)
             {
                 bool isMine = _random.Next(100) < mineChance;
-                cells[x, y] = new Cell(isMine);
+                cells[x][y] = new Cell(isMine);
                 if (isMine)
                 {
                     mines.Add((x, y));
@@ -37,10 +38,10 @@ public class BoardGenerator : IBoardGenerator
             {
                 if (IsValidPosition(x + x1, y + y1))
                 {
-                    ++cells[x + x1, y + y1].MinesAround;
+                    ++cells[x + x1][y + y1].MinesAround;
                 }
             }
-            mineCells[i++] = cells[x, y];
+            mineCells[i++] = cells[x][y];
         }
         
         return new Board()

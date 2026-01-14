@@ -2,16 +2,11 @@ namespace Minesweeper.Core.Game;
 
 using Board;
 
-public class GameState
+public class GameState(Board board)
 {
-    public Board Board { get; private set; }
+    public Board Board { get; private set; } = board;
     public CurrentState State { get; set; }
-    
-    public GameState(Board board)
-    {
-        Board = board;
-    }
-    
+
     public enum CurrentState
     {
         Playing,
