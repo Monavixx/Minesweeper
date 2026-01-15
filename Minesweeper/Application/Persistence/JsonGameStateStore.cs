@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Minesweeper.Core.Game;
+using Minesweeper.Core.Persistence;
 
 namespace Minesweeper.Application.Persistence;
 
@@ -18,13 +19,13 @@ public class JsonGameStateStore : IGameStateStore
         string json = JsonSerializer.Serialize(state, _jsonSerializerOptions);
         Directory.CreateDirectory(_appPaths.GamesDirectory);
         File.WriteAllText(
-            Path.Combine(_appPaths.GamesDirectory, NewId()+"."+_appPaths.GameFileExtension), json);
+            Path.Combine(_appPaths.GamesDirectory, state.GameId+"."+_appPaths.GameFileExtension), json);
     }
 
     public GameState Load(int id)
     {
         string json = File.ReadAllText(Path.Combine(_appPaths.GamesDirectory, id+"."+_appPaths.GameFileExtension));
-        return JsonSerializer.Deserialize<GameState>(json, _jsonSerializerOptions)!; // Mine cells должны рассчитываться а не записываться
+        return JsonSerializer.Deserialize<GameState>(json, _jsonSerializerOptions)!;
     }
 
     public int[] FindAllGameIds()
@@ -32,11 +33,11 @@ public class JsonGameStateStore : IGameStateStore
         DirectoryInfo di = new DirectoryInfo(_appPaths.GamesDirectory);
         if (!di.Exists) return [];
         return di.GetFiles($"*.{_appPaths.GameFileExtension}")
-            .Select(info => int.Parse(info.Name.Substring(0, info.Name.LastIndexOf('.'))))
+            .Select(info => int.Parse(info.Name[..info.Name.LastIndexOf('.')]))
             .ToArray();
     }
 
-    public int NewId()
+    public int NewGameId()
     {
         var gameIds = FindAllGameIds();
         if (gameIds.Length == 0) return 0;

@@ -6,6 +6,7 @@ using Minesweeper.Application.Services;
 using Minesweeper.Application.Viewport;
 using Minesweeper.Core.Game;
 using Minesweeper.Core.Generation;
+using Minesweeper.Core.Persistence;
 
 namespace Minesweeper.Application;
 
@@ -48,7 +49,7 @@ public class Application
     {
         _screenFactory.Register<GameScreen>(viewport => 
             new GameScreen(viewport, _game, _gameStateStore, _statisticsManager.Statistics));
-        _screenFactory.Register<MainMenuScreen>( viewport => new MainMenuScreen(viewport, _game));
+        _screenFactory.Register<MainMenuScreen>( viewport => new MainMenuScreen(viewport, _game, _gameStateStore));
         _screenFactory.Register<LoadGameMenuScreen>(viewport => 
             new LoadGameMenuScreen(viewport, _game, _gameStateStore));
     }

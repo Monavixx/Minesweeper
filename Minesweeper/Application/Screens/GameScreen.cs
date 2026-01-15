@@ -8,6 +8,7 @@ using Minesweeper.Application.Persistence;
 using Minesweeper.Application.Render;
 using Minesweeper.Application.Viewport;
 using Minesweeper.Core.Game;
+using Minesweeper.Core.Persistence;
 using Minesweeper.Core.Statistics;
 
 namespace Minesweeper.Application.Screens;
@@ -26,7 +27,7 @@ public class GameScreen : Screen
         _game = game;
         _gameRenderer = new GameRenderer(game, _cursor, statistics);
         _gameInputState = new GameInputState(game, _cursor, gameStateStore);
-        _gameOverInputState = new GameOverInputState(game);
+        _gameOverInputState = new GameOverInputState(game, gameStateStore);
 
         // New game is created before GameScreen is, so OnGameStarted hasn't called HandleGameStarted,
         // so we have to handle it.

@@ -1,4 +1,5 @@
 using Minesweeper.Core.Generation;
+using Minesweeper.Core.Persistence;
 using Minesweeper.Core.Time;
 
 namespace Minesweeper.Core.Game;
@@ -47,10 +48,35 @@ public class Game
         Timer.Update(deltaTime);
     }
 
-    public void StartNewGame()
+    public void StartNewGame(IGameStateStore gameStateStore)
     {
-        GameState = new GameState(BoardGenerator.Generate(BoardConfig));
+        GameState = new GameState(BoardGenerator.Generate(BoardConfig))
+        {
+            GameId = gameStateStore.NewGameId()
+        };
+        GameState.Resume();
         OnNewGameStarted?.Invoke();
+    }
+
+    public void LoadGame(GameState gameState)
+    {
+        GameState = gameState;
+        Timer.Elapsed = GameState.AccumulatedPlayTime;
+        GameState.Resume();
+    }
+
+    private void GameOver()
+    {
+        GameState.Pause();
+        GameState.State = GameState.CurrentState.GameOver;
+        OnGameOver?.Invoke();
+    }
+
+    private void Victory()
+    {
+        GameState.Pause();
+        GameState.State = GameState.CurrentState.Victory;
+        OnVictory?.Invoke();
     }
 
     public void ToggleFlagged(int x, int y)
@@ -70,15 +96,12 @@ public class Game
         {
             if (cell.IsMine)
             {
-                GameState.State = GameState.CurrentState.GameOver;
-                OnGameOver?.Invoke();
-                return;
+                GameOver();
             }
-            if (GameState.Board.AllSafeCellsRevealed())
+            else if (GameState.Board.AllSafeCellsRevealed())
             {
-                GameState.State = GameState.CurrentState.Victory;
-                OnVictory?.Invoke();
-            }    
+                Victory();
+            }
             OnCellUpdated?.Invoke(x, y);
         }
     }
@@ -90,13 +113,11 @@ public class Game
         {
             if (cell.IsMine)
             {
-                GameState.State = GameState.CurrentState.GameOver;
-                OnGameOver?.Invoke();
+                GameOver();
             }
             else if (GameState.Board.AllSafeCellsRevealed())
             {
-                GameState.State = GameState.CurrentState.Victory;
-                OnVictory?.Invoke();
+                Victory();
             }
             OnCellUpdated?.Invoke(x, y);
             return true;

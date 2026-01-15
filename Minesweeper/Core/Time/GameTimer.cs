@@ -2,7 +2,7 @@ namespace Minesweeper.Core.Time;
 
 public class GameTimer
 {
-    public TimeSpan Elapsed { get; private set; }
+    public TimeSpan Elapsed { get; set; }
     public bool IsRunning { get; private set; }
 
     public void Start() => IsRunning = true;

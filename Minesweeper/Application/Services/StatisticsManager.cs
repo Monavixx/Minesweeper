@@ -17,7 +17,6 @@ public class StatisticsManager : IDisposable
         Statistics = _statisticsStore.LoadOrDefault();
         Statistics.Changed += OnStatisticsChanged;
         
-        game.OnNewGameStarted += HandleNewGameStarted;
         game.OnGameOver += HandleGameOver;
         game.OnVictory += HandleVictory;
     }
@@ -26,13 +25,27 @@ public class StatisticsManager : IDisposable
         _statisticsStore.Save(Statistics);
     }
 
-    private void HandleNewGameStarted() => ++Statistics.GamesPlayed;
-    private void HandleGameOver() => ++Statistics.GameOversPlayed;
-    private void HandleVictory() => ++Statistics.VictoriesPlayed;
+    private void HandleGameOver()
+    {
+        ++Statistics.GameOversPlayed;
+        HandleGameEnded();
+    }
+
+    private void HandleVictory()
+    {
+        ++Statistics.VictoriesPlayed;
+        HandleGameEnded();
+    }
+
+    private void HandleGameEnded()
+    {
+        ++Statistics.GamesPlayed;
+        Statistics.TotalTimePlayed += _game.GameState.AccumulatedPlayTime;
+        Statistics.Commit();
+    }
 
     public void Dispose()
     {
-        _game.OnNewGameStarted -= HandleNewGameStarted;
         _game.OnGameOver -= HandleGameOver;
         _game.OnVictory -= HandleVictory;
     }

@@ -2,6 +2,7 @@ using Minesweeper.Application.Commands.Game;
 using Minesweeper.Application.Cursor;
 using Minesweeper.Application.Persistence;
 using Minesweeper.Core.Game;
+using Minesweeper.Core.Persistence;
 
 namespace Minesweeper.Application.Input.InputStates;
 

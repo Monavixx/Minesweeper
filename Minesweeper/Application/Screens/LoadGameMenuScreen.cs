@@ -6,6 +6,7 @@ using Minesweeper.Application.Render;
 using Minesweeper.Application.Screens.Menu;
 using Minesweeper.Application.Viewport;
 using Minesweeper.Core.Game;
+using Minesweeper.Core.Persistence;
 
 namespace Minesweeper.Application.Screens;
 
