@@ -34,36 +34,22 @@ public class BaseMenuRenderer (IMenuContext menuContext): IDisposable
     
     public virtual void Render()
     {
-        Console.ResetColor();
+        if (_lastSelectedIndex == menuContext.SelectedIndex && !_fullRenderRequired)
+            return;
+        //_fullRenderRequired = true;
+         //TODO: Неправильно рассчитывается _scrollOffsetLines
         
-        int startLine = GetStartLine(menuContext.SelectedIndex);
-        int endLine = startLine + GetRenderedHeight(menuContext.OptionLabels[menuContext.SelectedIndex].Length);
-        if (startLine < _scrollOffsetLines)
-        {
-            _scrollOffsetLines = startLine;
-            _fullRenderRequired = true;
-        }
-        else if(endLine > _scrollOffsetLines + InnerHeight)
-        {
-            _scrollOffsetLines = endLine - InnerHeight;
-            _fullRenderRequired = true;
-        } //TODO: Неправильно рассчитывается _scrollOffsetLines
             // seven
             // EIGHT
             // nine
             // -> Extend console
             // -> ArrowUp
         
-        //if (_fullRenderRequired)
-            FullRender();
-        /*else
-        {
-            RenderOption(options[selectedIndex], startLine, true, buttonWidth);
-            RenderOption(options[_lastSelectedIndex], GetStartLine(options, _lastSelectedIndex), false,
-                buttonWidth);
-        }*/
+        //if (_fullRenderRequired) 
+        FullRender();
         
         _lastSelectedIndex = menuContext.SelectedIndex;
+        _fullRenderRequired = false;
         Console.ResetColor();
     }
 
@@ -81,12 +67,30 @@ public class BaseMenuRenderer (IMenuContext menuContext): IDisposable
     
     private void FullRender()
     {
+        Console.ResetColor();
         Console.Clear();
-        int height = GetHeight();
-        int renderedHeight = int.Min(height, InnerHeight);
-
+        //int height = GetHeight();
+        
         int row = TopPadding;
         List<(string line, bool isSelected)> allLines = AllLines.ToList();
+        int renderedHeight = int.Min(allLines.Count, InnerHeight);
+
+        if (_scrollOffsetLines + renderedHeight > allLines.Count)
+        {
+            _scrollOffsetLines = 0;
+        }
+        
+        int startLine = GetStartLine(menuContext.SelectedIndex);
+        int endLine = startLine + GetRenderedHeight(menuContext.OptionLabels[menuContext.SelectedIndex].Length);
+        if (startLine < _scrollOffsetLines)
+        {
+            _scrollOffsetLines = startLine;
+        }
+        else if(endLine > _scrollOffsetLines + InnerHeight)
+        {
+            _scrollOffsetLines = endLine - InnerHeight;
+        }
+        
         for (int i = _scrollOffsetLines; i < _scrollOffsetLines + renderedHeight; ++i)
         {
             RenderLine(allLines[i].line, row++, allLines[i].isSelected);
@@ -110,11 +114,11 @@ public class BaseMenuRenderer (IMenuContext menuContext): IDisposable
 
     private IEnumerable<(string, bool)> SplitOption(int optionIndex)
     {
-        int i = 0;
-        while (menuContext.OptionLabels[optionIndex].Length > i*InnerWidth)
+        int i = -1;
+        while (menuContext.OptionLabels[optionIndex].Length > ++i*InnerWidth)
         {
-            yield return (menuContext.OptionLabels[optionIndex].Substring((i++)*InnerWidth, 
-                    int.Min(InnerWidth, menuContext.OptionLabels[optionIndex].Length)),
+            yield return (menuContext.OptionLabels[optionIndex].Substring(i*InnerWidth, 
+                    int.Min(InnerWidth, menuContext.OptionLabels[optionIndex].Length-i*InnerWidth)),
                 optionIndex==menuContext.SelectedIndex);
         }
     }

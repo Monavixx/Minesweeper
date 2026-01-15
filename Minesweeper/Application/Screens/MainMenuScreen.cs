@@ -27,7 +27,7 @@ public class MainMenuScreen : BaseMenuScreen
     
     private void Init() 
     {
-        /*RegisterOption("One", ()=>new ExitCommand());
+        RegisterOption("One", ()=>new ExitCommand());
         RegisterOption("Two", ()=>new ExitCommand());
         RegisterOption("Three", ()=>new ExitCommand());
         RegisterOption("Four", ()=>new ExitCommand());
@@ -35,9 +35,9 @@ public class MainMenuScreen : BaseMenuScreen
         RegisterOption("Six", ()=>new ExitCommand());
         RegisterOption("Seven", ()=>new ExitCommand());
         RegisterOption("Eight", ()=>new ExitCommand());
-        RegisterOption("Nine", ()=>new ExitCommand());*/
-        RegisterOption("New game", () => new StartNewGameCommand(_game));
-        RegisterOption("Load game", () => new OpenLoadGameMenuCommand());
-        RegisterOption("Exit", () => new ExitCommand());
+        RegisterOption("Nine", ()=>new ExitCommand());
+        // RegisterOption("New game", () => new StartNewGameCommand(_game));
+        // RegisterOption("Load game", () => new OpenLoadGameMenuCommand());
+        // RegisterOption("Exit", () => new ExitCommand());
     }
 }

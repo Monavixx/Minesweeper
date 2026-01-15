@@ -31,7 +31,7 @@ public class Statistics
             Changed?.Invoke();
         }
     }
-
+    // TODO: add average time stat.
     public IEnumerable<string> GetStatistics()
     {
         yield return $"Game Overs: {GameOversPlayed}";
