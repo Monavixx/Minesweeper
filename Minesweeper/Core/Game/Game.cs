@@ -10,6 +10,7 @@ public class Game
 {
     private IBoardGenerator BoardGenerator { get; set; }
     private BoardConfig BoardConfig { get; set; }
+    private ITimeProvider TimeProvider { get; }
     
     public GameTimer Timer { get; init; }
     public GameState GameState
@@ -28,10 +29,11 @@ public class Game
     public event Action<int, int>? OnCellUpdated;
     public event Action? OnGameStarted;
 
-    public Game(IBoardGenerator boardGenerator, BoardConfig boardConfig)
+    public Game(IBoardGenerator boardGenerator, BoardConfig boardConfig, ITimeProvider timeProvider)
     {
         BoardGenerator = boardGenerator;
         BoardConfig = boardConfig;
+        TimeProvider = timeProvider;
         Timer = new GameTimer();
 
         OnGameStarted += () =>
@@ -50,10 +52,7 @@ public class Game
 
     public void StartNewGame(IGameStateStore gameStateStore)
     {
-        GameState = new GameState(BoardGenerator.Generate(BoardConfig))
-        {
-            GameId = gameStateStore.NewGameId()
-        };
+        GameState = new GameState(BoardGenerator.Generate(BoardConfig), gameStateStore.NewGameId(), TimeProvider);
         GameState.Resume();
         OnNewGameStarted?.Invoke();
     }

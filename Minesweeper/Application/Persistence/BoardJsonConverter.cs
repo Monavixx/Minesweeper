@@ -13,16 +13,7 @@ public sealed class BoardJsonConverter : JsonConverter<Board>
 
         var cells = root.GetProperty("Cells").Deserialize<Cell[][]>(options)!;
 
-        var mineCells = cells
-            .SelectMany(col => col)
-            .Where(cell => cell.IsMine)
-            .ToArray();
-
-        return new Board
-        {
-            Cells = cells,
-            MineCells = mineCells
-        };
+        return new Board(cells);
     }
 
     public override void Write(Utf8JsonWriter writer, Board value, JsonSerializerOptions options)

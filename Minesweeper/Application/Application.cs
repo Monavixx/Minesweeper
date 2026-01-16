@@ -3,6 +3,7 @@ using Minesweeper.Application.Input;
 using Minesweeper.Application.Persistence;
 using Minesweeper.Application.Screens;
 using Minesweeper.Application.Services;
+using Minesweeper.Application.Time;
 using Minesweeper.Application.Viewport;
 using Minesweeper.Core.Game;
 using Minesweeper.Core.Generation;
@@ -29,8 +30,9 @@ public class Application
         IBoardConfigStore boardConfigStore = new JsonBoardConfigStore(appPaths);
         var boardConfig = boardConfigStore.LoadOrCreateDefault();
         _gameStateStore = new JsonGameStateStore(appPaths);
-        
-        _game = new Game(new BoardGenerator(), boardConfig);
+
+        var timeProvider = new UtcTimeProvider();
+        _game = new Game(new BoardGenerator(), boardConfig, timeProvider);
         _viewport = new ConsoleViewport();
         _screenFactory = new ScreenFactory();
         RegisterScreens();

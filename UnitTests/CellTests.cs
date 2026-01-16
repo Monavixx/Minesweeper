@@ -2,6 +2,7 @@ using Minesweeper.Core.Board;
 
 namespace UnitTests;
 
+[TestFixture]
 public class CellTests
 {
     [Test]
