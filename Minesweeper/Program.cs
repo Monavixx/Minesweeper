@@ -1,5 +1,4 @@
-﻿
-using Minesweeper.Application;
+﻿using Minesweeper.UI;
 
-Application app = new ();
+MinesweeperApplication app = new ();
 app.Run();
